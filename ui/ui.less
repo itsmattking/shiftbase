@@ -1,0 +1,351 @@
+@import 'globals.less';
+@import 'normalize.css';
+@import 'forms.less';
+@highlight: #55C5CB;
+
+body {
+  font-size: .9em;
+  overflow: hidden;
+  background: #EFEFEF;
+  font-family: 'helvetica neue', helvetica, arial, sans-serif;
+}
+#context {
+  box-sizing: border-box;
+  width: 50%;
+  float: left;
+  background: white;
+  overflow: hidden;
+  height: 1000px;
+  position: relative;
+  h2 {
+    padding: 10px 15px;
+    font-weight: 200;
+    margin: 0;
+    color: white;
+    background: #423D41;
+    border-bottom: 1px solid rgb(66, 61, 65);
+    &.icon-arrow:before {
+      margin-right: 10px;
+      cursor: pointer;
+    }
+    &:hover {
+      cursor: pointer;
+      &.icon-arrow:before {
+        color: @highlight;
+      }
+    }
+  }
+  #new-item {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: white;
+    display: block;
+    width: 32px;
+    height: 32px;
+    text-decoration: none;
+    font-size: 2em;
+    line-height: 30px;
+    &:hover {
+      color: @highlight;
+    }
+  }
+  #configure-item {
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    color: white;
+    display: block;
+    width: 32px;
+    height: 32px;
+    text-decoration: none;
+    font-size: 1.5em;
+    line-height: 30px;
+    &:hover {
+      color: @highlight;
+    }
+  }
+  #switcher {
+    position: absolute;
+    background: white;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      li {
+        border-top: 1px solid #DDD;
+        margin: 0;
+        padding: 10px 15px;
+        &:hover {
+          cursor: pointer;
+          background: @highlight;
+          color: #EFEFEF;
+        }
+      }
+    }
+    .transition(-webkit-transform .3s ease-in);
+  }
+  #list {
+    position: absolute;
+    width: 100%;
+    table {
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      th {
+        padding: 5px 15px;
+        text-align: left;
+        border-right: 1px solid #DDD;
+        border-bottom: 1px solid #DDD;
+        background: #EEE;
+        text-transform: uppercase;
+        color: #555;
+        font-size: .9em;
+        font-weight: normal;
+        &.check {
+          width: 13px;
+        }
+        &:last-child {
+          border-right: none;
+          width: 24px;
+        }
+      }
+      tr {
+        td {
+          padding: 10px 15px;
+          border-right: 1px solid #EEE;
+          border-bottom: 1px solid #EEE;
+          &.remove  {
+            border-right: none;
+            a {
+              text-decoration: none;
+              color: #222;
+              font-size: 1.8em;
+              &:hover {
+                color: @highlight;
+              }
+            }
+          }
+        }
+        &:hover td {
+          background: #F9F9F9;
+          cursor: pointer;
+        }
+        &:nth-child(even) {
+          background: #F8F8F8;
+        }
+      }
+    }
+    .transform(translate(100%, 0));
+    .transition(-webkit-transform .3s ease-in);
+  }
+  div[data-visible="list"] {
+    #list {
+      .transform(translate(0, 0));
+    }
+    #switcher {
+      .transform(translate(-100%, 0));
+    }
+  }
+}
+#detail {
+  box-sizing: border-box;
+  h2 {
+    padding: 10px 15px;
+    font-weight: 200;
+    margin: 0;
+    color: #555;
+    background: #DEDEDE;
+    border-bottom: 1px solid #CCC;
+    box-sizing: border-box;
+  }
+  form {
+    padding: 15px 30px;
+  }
+  height: 1000px;
+  overflow: auto;
+  width: 50%;
+  border-left: 1px solid #CCC;
+  border-right: 1px solid #CCC;
+  float: left;
+}
+
+#configure {
+  display: none;
+  box-sizing: border-box;
+  h2 {
+    padding: 10px 15px;
+    font-weight: 200;
+    margin: 0;
+    color: #555;
+    background: #DEDEDE;
+    border-bottom: 1px solid #CCC;
+    box-sizing: border-box;
+  }
+  h3 {
+    font-weight: normal;
+    color: #888;
+    margin: 0;
+    padding: 10px 15px;
+    border-bottom: 1px solid #CCC;
+    background: #F9F9F9;
+  }  
+  #close-config {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    text-decoration: none;
+    color: #888;
+    font-size: 1.8em;
+    &:hover {
+      color: @highlight;
+    }
+  }
+  div.selection {
+    border-bottom: 1px solid #CCC;
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      li {
+        list-style: none;
+        display: inline-block;
+        margin: 0;
+        padding: 5px 10px;
+        font-size: .9em;
+        border-right: 1px solid #CCC;
+        cursor: pointer;
+        text-align: center;
+        &:hover {
+          color: @highlight;
+        }
+      }
+    }
+  }
+  div[data-config] {
+    display: none;
+  }
+  &[data-active="fields"] li[data-config="fields"],
+  &[data-active="list"] li[data-config="list"],
+  &[data-active="form"] li[data-config="form"],
+  &[data-active="access"] li[data-config="access"] {
+    background: @highlight;
+    color: #EFEFEF;
+    border-right: 1px solid @highlight;
+    &:hover {
+      color: #EFEFEF;
+    }
+  }
+
+  &[data-active="fields"] div[data-config="fields"],
+  &[data-active="list"] div[data-config="list"],
+  &[data-active="form"] div[data-config="form"],
+  &[data-active="access"] div[data-config="access"] {
+    display: block;
+  }
+  
+  div[data-config="list"],
+  div[data-config="form"] {
+        
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      li {
+        list-style: none;
+        margin: 0;
+        padding: 5px 10px;
+        &.drag {
+          .opacity(50);
+        }
+        &.over {
+          padding-bottom: 20px;
+        }
+        label {
+          display: inline;
+        }
+      }
+    }
+  }
+
+  form {
+    padding: 15px 30px;
+  }
+  height: 1000px;
+  overflow: auto;
+  width: 50%;
+  border-left: 1px solid #CCC;
+  border-right: 1px solid #CCC;
+  float: left;
+}
+
+@media all and (max-width: 800px) {
+  #context {
+    position: absolute;
+    width: 100%;
+    display: none;
+    z-index: 1;
+  }
+  #detail {
+    position: absolute;
+    width: 100%;
+    z-index: 2;
+  }
+}
+@media all and (min-width: 1280px) {
+  #context {
+    width: 60%;
+    #switcher {
+      float: left;
+      width: 30%;
+      position: relative;
+      box-sizing: border-box;
+      .transform(none);
+      .transition(none);
+      border-right: 1px solid #CCC;
+    }
+    #list {
+      float: left;
+      width: 70%;
+      position: relative;
+      .transform(none);
+      .transition(none);
+      box-sizing: border-box;
+      h2 {
+        background: #EEE;
+        color: #555;
+        border-bottom: 1px solid #CCC;
+        cursor: text;
+        &.icon-arrow:before {
+          content: '';
+          margin-right: 0;
+        }
+      }
+    }
+    div[data-visible="list"] {
+      #list {
+        .transform(none);
+      }
+      #switcher {
+        .transform(none);
+      }
+    }
+    #new-item {
+      color: #222;
+    }
+    #configure-item {
+      color: #222;
+    }
+  }
+  #detail {
+    width: 40%;
+  }
+  #configure {
+    width: 40%;
+  }
+
+}
+

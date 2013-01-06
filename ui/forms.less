@@ -1,0 +1,29 @@
+@highlight: #55C5CB;
+input[type=text],
+input[type=password],
+input[type=phone],
+input[type=number],
+input[type=email] {
+  border: 1px solid #DDD;
+  padding: 10px;
+  font-size: 1.1em;
+  outline: none;
+  border: 0;
+  border-bottom: 1px solid #CCC;
+  background: #F9F9F9;
+  width: 100%;
+  box-sizing: border-box;
+  &:focus, &:hover {
+    background: white;
+    border-bottom: 1px solid @highlight;
+  }
+}
+label {
+  display: block;
+  padding: 10px;
+  font-size: .9em;
+  text-transform: uppercase;
+}
+div.field {
+  margin-bottom: 15px;
+}

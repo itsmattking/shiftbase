@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <title>_shiftbase</title>
+    <script src="js/lib/knockout-2.2.0.js"></script>
+    <script type="text/javascript" data-main="main.js" src="require.js"></script>
+    <link rel="stylesheet" href="icons.css" type="text/css" media="all">
+    <link rel="stylesheet" href="ui.css" type="text/css" media="all">
+  </head>
+  <body>
+    <div id="context">
+      <div data-bind="attr: { 'data-visible': visibleContext }">
+        <div id="switcher">
+          <h2>Content</h2>
+          <ul id="model-list" data-bind="click: loadItems">
+            <!-- ko foreach: manifest -->
+            <li data-bind="attr: { 'data-model': model, 'data-id': id }, text: model"></li>
+            <!-- /ko -->
+          </ul>
+        </div>
+        <div id="list">
+          <h2 data-bind="click: goToSwitcher, text: model" class="icon-arrow"></h2> <a href="#" id="new-item" data-bind="click: newItem" data-icon="&#x42;"></a> <a href="#" id="configure-item" data-bind="click: configureModel" data-icon="&#x31;"></a>
+          <div id="data-table">
+            <table>
+              <thead>
+                <tr>
+                  <th class="check"></th>
+                  <!-- ko foreach: listDisplay -->
+                  <th data-bind="text: $data"></th>
+                  <!-- /ko -->
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody data-bind="foreach: {data: datum, as: 'dd' }">
+                <tr data-bind="attr: { 'data-id': dd.id, 'data-model': $parent.model }, click: $parent.loadItem">
+                  <td><input type="checkbox" value="1" data-bind="uniqueName: true"></td>
+                  <!-- ko foreach: $parent.listDisplay -->
+                  <td data-bind="text: dd[$data]"></td>
+                  <!-- /ko -->
+                  <td class="remove"><a href="#" data-bind="click: $parent.remove" data-icon="&#x39;"></a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="detail">
+      <h2 data-bind="text: detailState"></h2>
+      <div id="data-item" data-bind="foreach: {data: datum, as: 'dd'}">
+        <form data-bind="attr: { 'data-id': dd.id, 'data-model': $parent.model() }, submit: $parent.saveItem">
+          <!-- ko foreach: $parent.formDisplay -->
+            <div data-bind="attr: { 'data-field': $data }" class="field">
+              <label data-bind="text: $data, attr: {for: 'field-' + $data}"></label>
+              <input data-bind="attr: { name: $data, id: 'field-' + $data }, value: dd[$data]" type="text">
+            </div>
+            <!-- /ko -->
+          <button type="submit">Save</button>
+        </form>
+      </div>
+    </div>
+    <div id="configure" data-active="fields">
+      <h2>Configure</h2>
+      <a href="#" data-bind="click: closeConfig" id="close-config" data-icon="&#x38;"></a>
+      <div class="selection" data-bind="click: showConfig">
+        <ul>
+          <li data-config="fields">Fields</li><!--
+          --><li data-config="list">List</li><!--
+          --><li data-config="form">Form</li><!--
+          --><li data-config="access">Data Access</li>
+        </ul>
+      </div>
+      <div data-config="fields">
+        <form data-bind="attr: { 'data-model': model }, submit: saveConfig">
+          <!-- ko foreach: structure -->
+          <div data-bind="attr: { 'data-field': $data }" class="field">
+            <label data-bind="text: $data, attr: {for: 'field-' + $data}"></label>
+            <input data-bind="attr: { name: $data, id: 'field-' + $data }" type="text">
+          </div>
+          <!-- /ko -->
+          <button type="submit">Save</button>
+        </form>
+      </div>
+      <div data-config="list">
+        <h3>List</h3>
+        <ul data-bind="foreach: { data: structure, as: 'dd' }, click: updateListDisplay">
+          <li data-bind="attr: {draggable: true}, event: { drop: $parent.handleDrop, dragover: $parent.handleDragOver, dragstart: $parent.handleDragStart, dragenter: $parent.handleDragEnter, dragleave: $parent.handleDragLeave }"><input type="checkbox" data-bind="checked: $parent.isInList($data), attr: { id: 'list-' + $data }, value: $data"> <label data-bind="text: $data"></label></li>
+        </ul>
+      </div>
+      <div data-config="form">
+        <h3>Form</h3>
+        <ul data-bind="foreach: { data: structure, as: 'dd' }, click: updateFormDisplay">
+          <li data-bind="attr: {draggable: true}, event: { drop: $parent.handleDrop, dragover: $parent.handleDragOver, dragstart: $parent.handleDragStart, dragenter: $parent.handleDragEnter, dragleave: $parent.handleDragLeave }"><input type="checkbox" data-bind="checked: $parent.isInForm($data), attr: { id: 'form-' + $data }, value: $data"> <label data-bind="attr: { for: 'form-' + $data }, text: $data"></label></li>
+        </ul>
+      </div>
+      <div data-config="access">
+        <h3>Data Access</h3>
+      </div>
+    </div>
+    <script>require(['ui']);</script>
+  </body>
+</html>
