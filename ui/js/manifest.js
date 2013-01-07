@@ -6,30 +6,19 @@ define('manifest', ['api-client'], function(api) {
     }
   }
 
-  Manifest.prototype.arrangeListDisplay = function(order) {
-    console.log('hi');
+  Manifest.prototype.arrangeDisplay = function(type, order) {
     for (var i = 0; i < order.length; i++) {
-      if (this.listDisplay.indexOf(order[i]) === -1) {
+      if (this[type + 'Display'].indexOf(order[i]) === -1) {
         order.splice(i, 1);
       }
     }
-    this.listDisplay = order;
-  };
-
-  Manifest.prototype.arrangeFormDisplay = function(order) {
-    for (var i = 0; i < order.length; i++) {
-      if (this.formDisplay.indexOf(order[i]) === -1) {
-        order.splice(i, 1);
-      }
-    }
-    this.formDisplay = order;
+    this[type + 'Display'] = order;
   };
 
   Manifest.prototype.save = function() {
     api.put('manifest', this.id, {
       data: this.toJSON(),
       success: function() {
-        console.log('saved');
       }
     });
   };
@@ -41,6 +30,28 @@ define('manifest', ['api-client'], function(api) {
       structure: this.structure,
       model: this.model
     };
+  };
+
+  Manifest.prototype.listNotDisplayed = function() {
+    var out = [];
+    var allFields = Object.keys(this.structure);
+    for (var i = 0; i < allFields.length; i++) {
+      if (this.listDisplay.indexOf(allFields[i]) === -1) {
+        out.push(allFields[i]);
+      }
+    }
+    return out;
+  };
+
+  Manifest.prototype.formNotDisplayed = function() {
+    var out = [];
+    var allFields = Object.keys(this.structure);
+    for (var i = 0; i < allFields.length; i++) {
+      if (this.formDisplay.indexOf(allFields[i]) === -1) {
+        out.push(allFields[i]);
+      }
+    }
+    return out;
   };
 
   return {

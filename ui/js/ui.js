@@ -4,6 +4,8 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
   var dataDisplay = ko.observableArray();
   var listDisplay = ko.observableArray();
   var formDisplay = ko.observableArray();
+  var listNotDisplayed = ko.observableArray();
+  var formNotDisplayed = ko.observableArray();
   var currentData = ko.observableArray();
   var modelName = ko.observable();
   var visibleContext = ko.observable('default');
@@ -28,7 +30,6 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
     for (var k in currentData()[0]) {
       dd[k] = currentData()[0][k].value();
     }
-    console.log(dd);
     if (e.dataset.id) {
       api.put(model, e.dataset.id, {
         data: dd,
@@ -40,9 +41,9 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
       });
     } else {
       api.create(model, {
-        data: currentData()[0],
+        data: dd,
         success: function(data) {
-          dataDisplay.unshift(data);
+          dataDisplay.unshift(new Model(data, currentStructure()));
 //           if (!currentData().length) {
 //             window.history.pushState({model: model, id: data.id}, 'Edit ' + model, [model, data.id].join('/'));
 //           } else {
@@ -101,6 +102,8 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
           currentStructure(currentManifest().structure);
           listDisplay(currentManifest().listDisplay);
           formDisplay(currentManifest().formDisplay);
+          listNotDisplayed(currentManifest().listNotDisplayed());
+          formNotDisplayed(currentManifest().formNotDisplayed());
           data.forEach(function(d) {
             dataDisplay.push(new Model(d, currentStructure()));
           });
@@ -115,6 +118,21 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
 
   function goToSwitcher() {
     window.history.back();
+  }
+
+  function extractDisplayType(st) {
+    var found;
+    while (!found) {
+      if (st.parentNode) {
+        st = st.parentNode;
+        if (st.dataset.config) {
+          found = st.dataset.config;
+        }
+      } else {
+        break;
+      }
+    }
+    return found;
   }
 
   for (var i = 0; i < manifest.length; i++) {
@@ -153,11 +171,33 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
     model: modelName,
     formDisplay: formDisplay,
     listDisplay: listDisplay,
+    formNotDisplayed: formNotDisplayed,
+    listNotDisplayed: listNotDisplayed,
     closeConfig: function() {
       document.querySelector('#detail').style.display = 'block';
       document.querySelector('#configure').style.display = 'none';
     },
     structure: currentStructure,
+    listStructure: ko.computed(function() {
+      var out = [];
+      var s = Object.keys(currentStructure());
+      for (var i = 0; i < s.length; i++) {
+        if (listDisplay.indexOf(s[i]) === -1) {
+          out.push(s[i]);
+        }
+      }
+      return listDisplay().concat(out);
+    }),
+    formStructure: ko.computed(function() {
+      var out = [];
+      var s = Object.keys(currentStructure());
+      for (var i = 0; i < s.length; i++) {
+        if (formDisplay.indexOf(s[i]) === -1) {
+          out.push(s[i]);
+        }
+      }
+      return formDisplay().concat(out);
+    }),
     structureKeys: ko.computed(function() {
       return Object.keys(currentStructure());
     }),
@@ -169,30 +209,47 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
     },
     saveConfig: function() {
     },
-    updateListDisplay: function(data, e) {
+    updateDisplay: function(data, e) {
       if (e.target && e.target.value) {
-        if (e.target.checked) {
-          if (listDisplay.indexOf(e.target.value) === -1) {
-            listDisplay.unshift(e.target.value);
-          }
-        } else if (listDisplay.indexOf(e.target.value) !== -1) {
-          listDisplay.splice(listDisplay.indexOf(e.target.value), 1);
+        var found = extractDisplayType(e.target);
+        var display, notDisplayed;
+        if (found === 'form') {
+          display = formDisplay;
+          notDisplayed = formNotDisplayed;
+        } else {
+          display = listDisplay;
+          notDisplayed = listNotDisplayed;
         }
-        currentManifest().arrangeListDisplay(listDisplay());
+        if (e.target.checked) {
+          if (display.indexOf(e.target.value) === -1) {
+            display.push(e.target.value);
+          }
+        } else if (display.indexOf(e.target.value) !== -1) {
+          notDisplayed.unshift(display.splice(display.indexOf(e.target.value), 1)[0]);
+        }
+        currentManifest().arrangeDisplay(found, display());
         currentManifest().save();
       }
       return true;
     },
-    updateFormDisplay: function(data, e) {
+    addToDisplay: function(data, e) {
       if (e.target && e.target.value) {
-        if (e.target.checked) {
-          if (formDisplay.indexOf(e.target.value) === -1) {
-            formDisplay.unshift(e.target.value);
-          }
-        } else if (formDisplay.indexOf(e.target.value) !== -1) {
-          formDisplay.splice(formDisplay.indexOf(e.target.value), 1);
+        var found = extractDisplayType(e.target);
+        var display, notDisplayed;
+        if (found === 'form') {
+          display = formDisplay;
+          notDisplayed = formNotDisplayed;
+        } else {
+          display = listDisplay;
+          notDisplayed = listNotDisplayed;
         }
-        currentManifest().arrangeFormDisplay(formDisplay());
+        if (e.target.checked) {
+          if (display.indexOf(e.target.value) === -1) {
+            display.push(e.target.value);
+            notDisplayed.splice(notDisplayed.indexOf(e.target.value), 1);
+          }
+        }
+        currentManifest().arrangeDisplay(found, display());
         currentManifest().save();
       }
       return true;
@@ -225,36 +282,19 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
       e.stopPropagation();
       if (e.target.getAttribute('draggable')) {
         if (dragSrcEl !== e.target) {
-          dragSrcEl.parentNode.removeChild(dragSrcEl);
-          e.target.parentNode.insertBefore(dragSrcEl, e.target.nextSibling);
+          var insertAfter = e.target.querySelector('input[type=checkbox]').value;
         }
         dragSrcEl.classList.remove('drag');
         e.target.classList.remove('over');
-        var st = e.target;
-        var found;
-        while (!found) {
-          if (st.parentNode) {
-            st = st.parentNode;
-            if (st.dataset.config) {
-              found = st.dataset.config;
-            }
-          } else {
-            break;
-          }
-        }
-        var n = e.target.parentNode.querySelectorAll('li');
-        var out = [];
-        for (var i = 0; i < n.length; i++) {
-          if (n[i].querySelector('input[type=checkbox]').checked) {
-            out.push(n[i].querySelector('input[type=checkbox]').value);
-          }
-        }
+        var found = extractDisplayType(e.target);
         if (found === 'form') {
-          formDisplay(out);
-          currentManifest().arrangeFormDisplay(formDisplay());
+          var extracted = formDisplay.splice(formDisplay.indexOf(dragSrcEl.querySelector('input[type=checkbox]').value), 1)[0];
+          formDisplay.splice(formDisplay.indexOf(insertAfter)+1, 0, extracted);
+          currentManifest().arrangeDisplay(found, formDisplay());
         } else {
-          listDisplay(out);
-          currentManifest().arrangeListDisplay(listDisplay());
+          var extracted = listDisplay.splice(listDisplay.indexOf(dragSrcEl.querySelector('input[type=checkbox]').value), 1)[0];
+          listDisplay.splice(listDisplay.indexOf(insertAfter)+1, 0, extracted);
+          currentManifest().arrangeDisplay(found, listDisplay());
         }
         currentManifest().save();
       }

@@ -252,6 +252,17 @@ body {
   border-bottom: 1px solid #CCC;
   background: #F9F9F9;
 }
+#configure h4 {
+  padding: 10px 15px;
+  margin: 0;
+}
+#configure p.note {
+  padding: 0 15px 10px 15px;
+  margin: 0;
+  color: #888;
+  font-style: italic;
+  font-size: .8em;
+}
 #configure #close-config {
   position: absolute;
   top: 10px;
@@ -312,12 +323,15 @@ body {
   margin: 0;
   padding: 0;
   list-style: none;
+  border-top: 1px solid #CCC;
+  border-bottom: 1px solid #CCC;
 }
 #configure div[data-config="list"] ul li,
 #configure div[data-config="form"] ul li {
   list-style: none;
   margin: 0;
-  padding: 5px 10px;
+  padding: 10px 15px;
+  border-bottom: 1px solid #DDD;
 }
 #configure div[data-config="list"] ul li.drag,
 #configure div[data-config="form"] ul li.drag {
@@ -329,6 +343,10 @@ body {
 #configure div[data-config="list"] ul li.over,
 #configure div[data-config="form"] ul li.over {
   padding-bottom: 20px;
+}
+#configure div[data-config="list"] ul li:last-child,
+#configure div[data-config="form"] ul li:last-child {
+  border-bottom: none;
 }
 #configure div[data-config="list"] ul li label,
 #configure div[data-config="form"] ul li label {
