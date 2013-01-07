@@ -3,7 +3,8 @@ input[type=text],
 input[type=password],
 input[type=phone],
 input[type=number],
-input[type=email] {
+input[type=email],
+textarea {
   border: 1px solid #DDD;
   padding: 10px;
   font-size: 1.1em;
@@ -18,11 +19,19 @@ input[type=email] {
     border-bottom: 1px solid @highlight;
   }
 }
+textarea {
+  height: 150px;
+}
 label {
   display: block;
   padding: 10px;
   font-size: .9em;
   text-transform: uppercase;
+  &.inline {
+    display: inline;
+    padding: 0 15px 0 5px;
+    text-transform: none;
+  }
 }
 div.field {
   margin-bottom: 15px;

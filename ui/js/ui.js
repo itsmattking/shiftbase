@@ -1,4 +1,4 @@
-define('ui', ['api-client', 'manifest!'], function(api, manifest) {
+define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model) {
 
   var manifestMap = {};
   var dataDisplay = ko.observableArray();
@@ -24,13 +24,18 @@ define('ui', ['api-client', 'manifest!'], function(api, manifest) {
 
   function saveItem(e) {
     var model = e.dataset.model;
+    var dd = {};
+    for (var k in currentData()[0]) {
+      dd[k] = currentData()[0][k].value();
+    }
+    console.log(dd);
     if (e.dataset.id) {
       api.put(model, e.dataset.id, {
-        data: currentData()[0],
+        data: dd,
         success: function(data) {
-          var found = dataDisplay().filter(function(d) {return d.id === e.dataset.id; })[0];
+          var found = dataDisplay().filter(function(d) {return d.id.value() === e.dataset.id; })[0];
           var num = dataDisplay().indexOf(found);
-          dataDisplay.splice(num, 1, data);
+          dataDisplay.splice(num, 1, new Model(data, currentStructure()));
         }
       });
     } else {
@@ -52,7 +57,7 @@ define('ui', ['api-client', 'manifest!'], function(api, manifest) {
   function loadItem(data, e) {
     var model = e.target.parentNode.dataset.model;
     if (model) {
-      api.get(model, this.id, {
+      api.get(model, this.id.value(), {
         success: function(d) {
 //           if (!currentData().length) {
 //             window.history.pushState({model: model, id: d.id}, 'Edit ' + model, [model, d.id].join('/'));
@@ -61,7 +66,7 @@ define('ui', ['api-client', 'manifest!'], function(api, manifest) {
 //           }
           detailState('Edit ' + model);
           currentData.removeAll();
-          currentData.push(d);
+          currentData.push(new Model(d, currentStructure()));
         }
       });
       return false;
@@ -79,7 +84,7 @@ define('ui', ['api-client', 'manifest!'], function(api, manifest) {
 //     }
 
     currentData.removeAll();
-    currentData.push({});
+    currentData.push(new Model({}, currentStructure()));
   }
 
   function loadItems(data, e) {
@@ -92,13 +97,13 @@ define('ui', ['api-client', 'manifest!'], function(api, manifest) {
           dataDisplay.removeAll();
           detailState('');
           modelName(model);
-          listDisplay(manifestMap[id].listDisplay);
-          formDisplay(manifestMap[id].formDisplay);
-          data.forEach(function(d) {
-            dataDisplay.push(d);
-          });
-          currentStructure(manifestMap[id].structure);
           currentManifest(manifestMap[id]);
+          currentStructure(currentManifest().structure);
+          listDisplay(currentManifest().listDisplay);
+          formDisplay(currentManifest().formDisplay);
+          data.forEach(function(d) {
+            dataDisplay.push(new Model(d, currentStructure()));
+          });
           visibleContext('list');
 //           window.history.pushState({model: model}, 'View ' + model, [model].join('/'));
         }
@@ -139,7 +144,8 @@ define('ui', ['api-client', 'manifest!'], function(api, manifest) {
     model: modelName,
     datum: currentData,
     formDisplay: formDisplay,
-    saveItem: saveItem
+    saveItem: saveItem,
+    structure: currentStructure
   }, document.querySelector('#detail'));
 
   var dragSrcEl = null;
@@ -151,7 +157,8 @@ define('ui', ['api-client', 'manifest!'], function(api, manifest) {
       document.querySelector('#detail').style.display = 'block';
       document.querySelector('#configure').style.display = 'none';
     },
-    structure: ko.computed(function() {
+    structure: currentStructure,
+    structureKeys: ko.computed(function() {
       return Object.keys(currentStructure());
     }),
     isInList: function(name) {
@@ -203,7 +210,6 @@ define('ui', ['api-client', 'manifest!'], function(api, manifest) {
       return true;
     },
     handleDragEnter: function(data, e) {
-      console.log('enter');
       return true;
     },
     handleDragLeave: function(data, e) {
@@ -218,8 +224,7 @@ define('ui', ['api-client', 'manifest!'], function(api, manifest) {
     handleDrop: function(data, e) {
       e.stopPropagation();
       if (e.target.getAttribute('draggable')) {
-        if (dragSrcEl != e.target) {
-          // Set the source column's HTML to the HTML of the column we dropped on.
+        if (dragSrcEl !== e.target) {
           dragSrcEl.parentNode.removeChild(dragSrcEl);
           e.target.parentNode.insertBefore(dragSrcEl, e.target.nextSibling);
         }
@@ -249,7 +254,7 @@ define('ui', ['api-client', 'manifest!'], function(api, manifest) {
           currentManifest().arrangeFormDisplay(formDisplay());
         } else {
           listDisplay(out);
-          currentManifest().arrangeListDisplay(formDisplay());
+          currentManifest().arrangeListDisplay(listDisplay());
         }
         currentManifest().save();
       }

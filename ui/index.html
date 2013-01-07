@@ -5,8 +5,8 @@
     <title>shiftba.se</title>
     <script src="js/lib/knockout-2.2.0.js"></script>
     <script type="text/javascript" data-main="js/main.js" src="js/lib/require.js"></script>
-    <link rel="stylesheet" href="icons.css" type="text/css" media="all">
-    <link rel="stylesheet" href="ui.css" type="text/css" media="all">
+    <link rel="stylesheet" href="css/icons.css" type="text/css" media="all">
+    <link rel="stylesheet" href="css/ui.css" type="text/css" media="all">
   </head>
   <body>
     <div id="context">
@@ -33,10 +33,10 @@
                 </tr>
               </thead>
               <tbody data-bind="foreach: {data: datum, as: 'dd' }">
-                <tr data-bind="attr: { 'data-id': dd.id, 'data-model': $parent.model }, click: $parent.loadItem">
+                <tr data-bind="attr: { 'data-id': dd.id.value(), 'data-model': $parent.model }, click: $parent.loadItem">
                   <td><input type="checkbox" value="1" data-bind="uniqueName: true"></td>
                   <!-- ko foreach: $parent.listDisplay -->
-                  <td data-bind="text: dd[$data]"></td>
+                  <td data-bind="text: dd[$data].value"></td>
                   <!-- /ko -->
                   <td class="remove"><a href="#" data-bind="click: $parent.remove" data-icon="&#x39;"></a></td>
                 </tr>
@@ -49,11 +49,11 @@
     <div id="detail">
       <h2 data-bind="text: detailState"></h2>
       <div id="data-item" data-bind="foreach: {data: datum, as: 'dd'}">
-        <form data-bind="attr: { 'data-id': dd.id, 'data-model': $parent.model() }, submit: $parent.saveItem">
+        <form data-bind="attr: { 'data-id': dd.id.value(), 'data-model': $parent.model() }, submit: $parent.saveItem">
           <!-- ko foreach: $parent.formDisplay -->
             <div data-bind="attr: { 'data-field': $data }" class="field">
               <label data-bind="text: $data, attr: {for: 'field-' + $data}"></label>
-              <input data-bind="attr: { name: $data, id: 'field-' + $data }, value: dd[$data]" type="text">
+              <div data-bind="template: { name: dd[$data].type + '-template', data: dd[$data] }"></div>
             </div>
             <!-- /ko -->
           <button type="submit">Save</button>
@@ -73,10 +73,10 @@
       </div>
       <div data-config="fields">
         <form data-bind="attr: { 'data-model': model }, submit: saveConfig">
-          <!-- ko foreach: structure -->
+          <!-- ko foreach: structureKeys -->
           <div data-bind="attr: { 'data-field': $data }" class="field">
             <label data-bind="text: $data, attr: {for: 'field-' + $data}"></label>
-            <input data-bind="attr: { name: $data, id: 'field-' + $data }" type="text">
+            <div data-bind="template: { name: $parent.structure()[$data] + '-template', data: { name: $data, value: '' } }"></div>
           </div>
           <!-- /ko -->
           <button type="submit">Save</button>
@@ -84,13 +84,13 @@
       </div>
       <div data-config="list">
         <h3>List</h3>
-        <ul data-bind="foreach: { data: structure, as: 'dd' }, click: updateListDisplay">
-          <li data-bind="attr: {draggable: true}, event: { drop: $parent.handleDrop, dragover: $parent.handleDragOver, dragstart: $parent.handleDragStart, dragenter: $parent.handleDragEnter, dragleave: $parent.handleDragLeave }"><input type="checkbox" data-bind="checked: $parent.isInList($data), attr: { id: 'list-' + $data }, value: $data"> <label data-bind="text: $data"></label></li>
+        <ul data-bind="foreach: { data: structureKeys, as: 'dd' }, click: updateListDisplay">
+          <li data-bind="attr: {draggable: true}, event: { drop: $parent.handleDrop, dragover: $parent.handleDragOver, dragstart: $parent.handleDragStart, dragenter: $parent.handleDragEnter, dragleave: $parent.handleDragLeave }"><input type="checkbox" data-bind="checked: $parent.isInList($data), attr: { id: 'list-' + $data }, value: $data"> <label data-bind="attr: { for: 'list-' + $data }, text: $data"></label></li>
         </ul>
       </div>
       <div data-config="form">
         <h3>Form</h3>
-        <ul data-bind="foreach: { data: structure, as: 'dd' }, click: updateFormDisplay">
+        <ul data-bind="foreach: { data: structureKeys, as: 'dd' }, click: updateFormDisplay">
           <li data-bind="attr: {draggable: true}, event: { drop: $parent.handleDrop, dragover: $parent.handleDragOver, dragstart: $parent.handleDragStart, dragenter: $parent.handleDragEnter, dragleave: $parent.handleDragLeave }"><input type="checkbox" data-bind="checked: $parent.isInForm($data), attr: { id: 'form-' + $data }, value: $data"> <label data-bind="attr: { for: 'form-' + $data }, text: $data"></label></li>
         </ul>
       </div>
@@ -98,6 +98,20 @@
         <h3>Data Access</h3>
       </div>
     </div>
+    <!-- field templates -->
+    <script type="text/html" id="string-template">
+      <input data-bind="attr: { name: name, id: 'field-' + name }, value: value" type="text">
+    </script>
+      
+    <script type="text/html" id="boolean-template">
+      <input type="radio" data-bind="attr: {name: name, id: 'field-true-' + name}, checked: value" value="true"> <label data-bind="attr: { for: 'field-true-' + name }" class="inline">Yes</label>  
+      <input type="radio" data-bind="attr: {name: name, id: 'field-false-' + name}, checked: value" value="false"> <label data-bind="attr: { for: 'field-false-' + name }" class="inline">No</label>
+    </script>
+
+    <script type="text/html" id="text-template">
+      <textarea data-bind="attr: {name: name, id: 'field-' + name}, value: value"></textarea>
+    </script>
+
     <script>require(['ui']);</script>
   </body>
 </html>

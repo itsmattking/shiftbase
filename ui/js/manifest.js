@@ -7,6 +7,7 @@ define('manifest', ['api-client'], function(api) {
   }
 
   Manifest.prototype.arrangeListDisplay = function(order) {
+    console.log('hi');
     for (var i = 0; i < order.length; i++) {
       if (this.listDisplay.indexOf(order[i]) === -1) {
         order.splice(i, 1);
