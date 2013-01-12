@@ -33,10 +33,10 @@
                 </tr>
               </thead>
               <tbody data-bind="foreach: {data: datum, as: 'dd' }">
-                <tr data-bind="attr: { 'data-id': (dd.id && dd.id.value()), 'data-model': $parent.model }, click: $parent.loadItem">
+                <tr data-bind="attr: { 'data-id': (dd.id && dd.fields.id.value()), 'data-model': $parent.model }, click: $parent.loadItem">
                   <td><input type="checkbox" value="1" data-bind="uniqueName: true"></td>
                   <!-- ko foreach: $parent.listDisplay -->
-                  <td data-bind="text: dd[$data].value"></td>
+                  <td data-bind="text: dd.fields[$data].value"></td>
                   <!-- /ko -->
                   <td class="remove"><a href="#" data-bind="click: $parent.remove" data-icon="&#x39;"></a></td>
                 </tr>
@@ -49,11 +49,11 @@
     <div id="detail">
       <h2 data-bind="text: detailState"></h2>
       <div id="data-item" data-bind="foreach: {data: datum, as: 'dd'}">
-        <form data-bind="attr: { 'data-id': dd.id.value(), 'data-model': $parent.model() }, submit: $parent.saveItem">
+        <form data-bind="attr: { 'data-id': dd.fields.id.value(), 'data-model': $parent.model() }, submit: $parent.saveItem">
           <!-- ko foreach: $parent.formDisplay -->
             <div data-bind="attr: { 'data-field': $data }" class="field">
               <label data-bind="text: $data, attr: {for: 'field-' + $data}"></label>
-              <div data-bind="template: { name: dd[$data].type + '-template', data: dd[$data] }"></div>
+              <div data-bind="template: { name: dd.fields[$data].type + '-template', data: dd.fields[$data] }"></div>
             </div>
             <!-- /ko -->
           <button type="submit">Save</button>

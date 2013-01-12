@@ -5,11 +5,13 @@ define('views/fields/boolean', ['views/fields/base'], function(BaseView) {
     this.name = ko.observable(name);
     this.boolValue = ko.observable(value);
     this.isChecked = ko.computed(function() {
-      return this.boolValue().toString();
+      return this.value();
     }, this);
     this.value = ko.computed({
       read: function() {
-        return this.boolValue().toString();
+        return typeof this.boolValue() !== 'undefined' ?
+          this.boolValue().toString() :
+          'true';
       },
       write: function(val) {
         if (typeof val === 'string') {

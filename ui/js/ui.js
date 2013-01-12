@@ -14,43 +14,24 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
   var currentManifest = ko.observable();
 
   function removeItem(data, e) {
-    var id = e.target.parentNode.parentNode.dataset.id;
-    var model = e.target.parentNode.parentNode.dataset.model;
     var item = this;
-    api.remove(model, id, {
-      success: function(data) {
-        dataDisplay.remove(item);
-      }
+    item.remove(function(data) {
+      dataDisplay.remove(item);
     });
   }
 
   function saveItem(e) {
     var model = e.dataset.model;
-    var dd = {};
-    for (var k in currentData()[0]) {
-      dd[k] = currentData()[0][k].value();
-    }
     if (e.dataset.id) {
-      api.put(model, e.dataset.id, {
-        data: dd,
-        success: function(data) {
-          var found = dataDisplay().filter(function(d) {return d.id.value() === e.dataset.id; })[0];
-          var num = dataDisplay().indexOf(found);
-          dataDisplay.splice(num, 1, new Model(data, currentStructure()));
-        }
+      currentData()[0].save(function(data) {
+        var found = dataDisplay().filter(function(d) {return d.id.value() === e.dataset.id; })[0];
+        var num = dataDisplay().indexOf(found);
+        dataDisplay.splice(num, 1, currentData()[0]);
       });
     } else {
-      api.create(model, {
-        data: dd,
-        success: function(data) {
-          dataDisplay.unshift(new Model(data, currentStructure()));
-//           if (!currentData().length) {
-//             window.history.pushState({model: model, id: data.id}, 'Edit ' + model, [model, data.id].join('/'));
-//           } else {
-//             window.history.replaceState({model: model, id: data.id}, 'Edit ' + model, [data.id].join('/'));
-//           }
-          detailState('Edit ' + model);
-        }
+      currentData()[0].create(function() {
+        dataDisplay.unshift(currentData()[0]);
+        detailState('Edit ' + model);
       });
     }
   }
@@ -58,7 +39,7 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
   function loadItem(data, e) {
     var model = e.target.parentNode.dataset.model;
     if (model) {
-      api.get(model, this.id.value(), {
+      api.get(model, this.fields.id.value(), {
         success: function(d) {
 //           if (!currentData().length) {
 //             window.history.pushState({model: model, id: d.id}, 'Edit ' + model, [model, d.id].join('/'));
@@ -67,7 +48,7 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
 //           }
           detailState('Edit ' + model);
           currentData.removeAll();
-          currentData.push(new Model(d, currentStructure()));
+          currentData.push(new Model(model, d, currentStructure()));
         }
       });
       return false;
@@ -85,7 +66,7 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
 //     }
 
     currentData.removeAll();
-    currentData.push(new Model({}, currentStructure()));
+    currentData.push(new Model(model, {}, currentStructure()));
   }
 
   function loadItems(data, e) {
@@ -105,7 +86,7 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
           listNotDisplayed(currentManifest().listNotDisplayed());
           formNotDisplayed(currentManifest().formNotDisplayed());
           data.forEach(function(d) {
-            dataDisplay.push(new Model(d, currentStructure()));
+            dataDisplay.push(new Model(model, d, currentStructure()));
           });
           visibleContext('list');
 //           window.history.pushState({model: model}, 'View ' + model, [model].join('/'));
