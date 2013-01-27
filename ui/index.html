@@ -20,7 +20,7 @@
           </ul>
         </div>
         <div id="list">
-          <h2 data-bind="click: goToSwitcher, text: model" class="icon-arrow"></h2> <a href="#" id="new-item" data-bind="click: newItem" data-icon="&#x42;"></a> <a href="#" id="configure-item" data-bind="click: configureModel" data-icon="&#x31;"></a>
+          <h2><span data-bind="click: goToSwitcher, text: model" class="icon-arrow"></span></h2> <a href="#" id="new-item" data-bind="click: newItem" data-icon="&#x42;"></a> <a href="#" id="configure-item" data-bind="click: configureModel" data-icon="&#x31;"></a>
           <div id="data-table">
             <table>
               <thead>
@@ -72,10 +72,12 @@
         </ul>
       </div>
       <div data-config="fields">
+        <select data-bind="options: fieldOptions, optionsText: 'name', optionsValue: 'value'" name="fieldTypes">
+        </select> <button data-bind="click: addField">+</button>
         <form data-bind="attr: { 'data-model': model }, submit: saveConfig">
           <!-- ko foreach: structureKeys -->
           <div data-bind="attr: { 'data-field': $data }" class="field">
-            <label data-bind="text: $data, attr: {for: 'field-' + $data}"></label>
+            <input type="text" class="editable-label" data-bind="value: $data, event: { change: $parent.saveField }">
             <div data-bind="template: { name: $parent.structure()[$data] + '-template', data: { name: $data, value: '' } }"></div>
           </div>
           <!-- /ko -->
@@ -98,10 +100,10 @@
         <h3>Form</h3>
         <h4>Displayed In Forms</h4>
         <p class="note">Drag fields to re-arrange display order</p>
-        <ul data-bind="foreach: { data: formDisplay, as: 'dd' }, click: updateDisplay">
-          <li data-bind="attr: {draggable: true}, event: { drop: $parent.handleDrop, dragover: $parent.handleDragOver, dragstart: $parent.handleDragStart, dragenter: $parent.handleDragEnter, dragleave: $parent.handleDragLeave }"><input type="checkbox" data-bind="checked: true, attr: { id: 'form-' + $data }, value: $data"> <label data-bind="attr: { for: 'form-' + $data }, text: $data"></label></li>
+        <ul data-bind="foreach: { data: formDisplay, as: 'dd' }, click: updateDisplay, event: { mouseout: resetDrag }">
+          <li data-bind="attr: {draggable: true}, event: { drop: $parent.handleDrop, dragover: $parent.handleDragOver, dragend: $parent.handleDragEnd, dragstart: $parent.handleDragStart, dragenter: $parent.handleDragEnter, dragleave: $parent.handleDragLeave, mousedown: $parent.handleMouseDown }"><input type="checkbox" data-bind="checked: true, attr: { id: 'form-' + $data }, value: $data"> <span class="handle"></span><label data-bind="attr: { for: 'form-' + $data }, text: $data"></label></li>
         </ul>
-        <h4>Not Displayed</h4>
+        <h4>Not Displayed In Forms</h4>
         <ul data-bind="foreach: { data: formNotDisplayed, as: 'dd' }, click: addToDisplay">
           <li><input type="checkbox" data-bind="checked: false, attr: { id: 'form-' + $data }, value: $data"> <label data-bind="attr: { for: 'form-' + $data }, text: $data"></label></li>
         </ul>

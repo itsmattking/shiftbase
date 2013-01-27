@@ -19,6 +19,19 @@ textarea {
     border-bottom: 1px solid @highlight;
   }
 }
+input[type=text].editable-label {
+  border: 0;
+  text-transform: uppercase;
+  font-size: .9em;
+  padding: 10px;
+  display: block;
+  background: transparent;
+  border-bottom: 0;
+  &:focus, &:hover {
+    background: transparent;
+    border-bottom: 0;
+  }
+}
 textarea {
   height: 150px;
 }

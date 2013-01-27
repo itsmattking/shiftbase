@@ -24,7 +24,9 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
     var model = e.dataset.model;
     if (e.dataset.id) {
       currentData()[0].save(function(data) {
-        var found = dataDisplay().filter(function(d) {return d.id.value() === e.dataset.id; })[0];
+        var found = dataDisplay().filter(function(d) {
+          return d.fields.id.value() === e.dataset.id;
+        })[0];
         var num = dataDisplay().indexOf(found);
         dataDisplay.splice(num, 1, currentData()[0]);
       });
@@ -97,8 +99,19 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
     }
   }
 
-  function goToSwitcher() {
-    window.history.back();
+  function goToSwitcher(data, e) {
+//     window.history.back();
+    console.log(e.target);
+    visibleContext('switcher');
+  }
+
+  function saveField(data, e) {
+    console.log(e);
+  }
+
+  function addField(data, e) {
+    var type = document.querySelector('select[name=fieldTypes]').value;
+    formDisplay.push('Name This Field');
   }
 
   function extractDisplayType(st) {
@@ -115,6 +128,33 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
     }
     return found;
   }
+
+  var fieldOptions = [
+    {
+      name: 'Text Field',
+      value: 'string'
+    },
+    {
+      name: 'Text Area',
+      value: 'text'
+    },
+    {
+      name: 'Yes/No',
+      value: 'boolean'
+    },
+    {
+      name: 'Date',
+      value: 'date'
+    },
+    {
+      name: 'Choice',
+      value: 'choice'
+    },
+    {
+      name: 'Image',
+      value: 'image'
+    }
+  ];
 
   for (var i = 0; i < manifest.length; i++) {
     manifestMap[manifest[i].id] = manifest[i];
@@ -190,6 +230,9 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
     },
     saveConfig: function() {
     },
+    saveField: saveField,
+    addField: addField,
+    fieldOptions: fieldOptions,
     updateDisplay: function(data, e) {
       if (e.target && e.target.value) {
         var found = extractDisplayType(e.target);
@@ -241,50 +284,118 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
         document.querySelector('#configure').dataset.active = config;
       }
     },
+    resetDrag: function(e) {
+      console.log('reset');
+      if (dragSrcEl) {
+        console.log('resetting drag');
+        dragSrcEl.parentNode.querySelector('li').map(function(l) {
+          l.classList.remove('over');
+        });
+      }
+    },
+    handleMouseDown: function(data, e) {
+      if (e.target.classList.contains('handle')) {
+        return true;
+      } else {
+        return false;
+      }
+    },
     handleDragStart: function(data, e) {
       e.dataTransfer.effectAllowed = 'move';
-      dragSrcEl = e.target;
       e.target.classList.add('drag');
+      dragSrcEl = e.target;
       return true;
     },
     handleDragEnter: function(data, e) {
+//       var target = e.target;
+//       while (target && !target.getAttribute('draggable')) {
+//         target = target.parentNode;
+//       }
+//       if (target) {
+//         var li = document.createElement('li');
+//         li.classList.add('placeholder');
+//         target.parentNode.insertBefore(li, target);
+//       }
       return true;
     },
     handleDragLeave: function(data, e) {
-      e.target.classList.remove('over');
+      var lis = Array.prototype.slice.call(document.querySelectorAll('[data-config=form] ul li[draggable]'), 0);
+      lis.map(function(l) {
+        l.classList.remove('over');
+      });
+//       var ph = Array.prototype.slice.call(document.querySelectorAll('[data-config=form] ul li.placeholder'), 0);
+//       for (var i = 0; i < ph.length; i++) {
+//         ph[i].parentNode.removeChild(ph[i]);
+//       }
+    },
+    handleDragEnd: function(data, e) {
+      var lis = Array.prototype.slice.call(document.querySelectorAll('[data-config=form] ul li[draggable]'), 0);
+      lis.map(function(l) {
+        l.classList.remove('over');
+      });
+//       var ph = Array.prototype.slice.call(document.querySelectorAll('[data-config=form] ul li.placeholder'), 0);
+//       for (var i = 0; i < ph.length; i++) {
+//         ph[i].parentNode.removeChild(ph[i]);
+//       }
+      dragSrcEl.classList.remove('drag');
+      dragSrcEl = null;
     },
     handleDragOver: function(data, e) {
       e.dataTransfer.dropEffect = 'move';
-      e.target.classList.add('over');
+      var target = e.target;
+      while (target && !target.getAttribute('draggable')) {
+        target = target.parentNode;
+      }
+      if (target !== dragSrcEl) {
+        target.classList.add('over');
+      }
       e.preventDefault();
       return true;
     },
     handleDrop: function(data, e) {
       e.stopPropagation();
-      if (e.target.getAttribute('draggable')) {
-        if (dragSrcEl !== e.target) {
-          var insertAfter = e.target.querySelector('input[type=checkbox]').value;
-        }
-        dragSrcEl.classList.remove('drag');
-        e.target.classList.remove('over');
-        var found = extractDisplayType(e.target);
-        if (found === 'form') {
-          var extracted = formDisplay.splice(formDisplay.indexOf(dragSrcEl.querySelector('input[type=checkbox]').value), 1)[0];
-          formDisplay.splice(formDisplay.indexOf(insertAfter)+1, 0, extracted);
-          currentManifest().arrangeDisplay(found, formDisplay());
-        } else {
-          var extracted = listDisplay.splice(listDisplay.indexOf(dragSrcEl.querySelector('input[type=checkbox]').value), 1)[0];
-          listDisplay.splice(listDisplay.indexOf(insertAfter)+1, 0, extracted);
-          currentManifest().arrangeDisplay(found, listDisplay());
-        }
-        currentManifest().save();
+      var target = e.target;
+      while (target && !target.getAttribute('draggable')) {
+        target = target.parentNode;
       }
+      if (dragSrcEl === target) {
+        dragSrcEl.classList.remove('drag');
+        target.classList.remove('over');
+        return true;
+      }
+      if (dragSrcEl !== target) {
+        var insertAfter = target.querySelector('input[type=checkbox]').value;
+      }
+      dragSrcEl.classList.remove('drag');
+      target.classList.remove('over');
+      var found = extractDisplayType(target);
+      if (found === 'form') {
+        var extracted = formDisplay.splice(formDisplay.indexOf(dragSrcEl.querySelector('input[type=checkbox]').value), 1)[0];
+        formDisplay.splice(formDisplay.indexOf(insertAfter)+1, 0, extracted);
+        currentManifest().arrangeDisplay(found, formDisplay());
+      } else {
+        var extracted = listDisplay.splice(listDisplay.indexOf(dragSrcEl.querySelector('input[type=checkbox]').value), 1)[0];
+        listDisplay.splice(listDisplay.indexOf(insertAfter)+1, 0, extracted);
+        currentManifest().arrangeDisplay(found, listDisplay());
+      }
+      currentManifest().save();
 
 //       console.log(listDisplay.indexOf(e.target.querySelector('input[type=checkbox]').value));
 //       console.log(listDisplay.indexOf(dragSrcEl.querySelector('input[type=checkbox]').value));
       return true;
     }
   }, document.querySelector('#configure'));
+
+  function handleResize(e) {
+    var h = window.innerHeight;
+    document.querySelector('#switcher').style.height = h + 'px';
+    document.querySelector('#list').style.height = h + 'px';
+    document.querySelector('#list #data-table').style.height = (h-document.querySelector('#list h2').offsetHeight) + 'px';
+    document.querySelector('#detail').style.height = h + 'px';
+  }
+
+  window.addEventListener('resize', handleResize);
+  handleResize();
 
 //   window.addEventListener('popstate', function(e) {
 //     if (!e.state) {
@@ -296,5 +407,8 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
 //       currentData.removeAll();
 //     }
 //   });
+  setTimeout(function() {
+    document.body.classList.add('animate');
+  });
 
 });

@@ -30,6 +30,20 @@ textarea:hover {
   background: white;
   border-bottom: 1px solid #55c5cb;
 }
+input[type=text].editable-label {
+  border: 0;
+  text-transform: uppercase;
+  font-size: .9em;
+  padding: 10px;
+  display: block;
+  background: transparent;
+  border-bottom: 0;
+}
+input[type=text].editable-label:focus,
+input[type=text].editable-label:hover {
+  background: transparent;
+  border-bottom: 0;
+}
 textarea {
   height: 150px;
 }
@@ -70,14 +84,17 @@ body {
   background: #423D41;
   border-bottom: 1px solid #423d41;
 }
-#context h2.icon-arrow:before {
+#context h2 span.icon-arrow:before {
   margin-right: 10px;
   cursor: pointer;
 }
-#context h2:hover {
+#context h2 span.icon-arrow:before:hover {
   cursor: pointer;
 }
-#context h2:hover.icon-arrow:before {
+#context h2 span:hover {
+  cursor: pointer;
+}
+#context h2 span:hover.icon-arrow:before {
   color: #55c5cb;
 }
 #context #new-item {
@@ -146,12 +163,15 @@ body {
   -moz-transition: -webkit-transform 0.3s ease-in;
   transition: -webkit-transform 0.3s ease-in;
 }
-#context #list table {
+#context #list #data-table {
+  overflow: auto;
+}
+#context #list #data-table table {
   table-layout: fixed;
   width: 100%;
   border-collapse: collapse;
 }
-#context #list table th {
+#context #list #data-table table th {
   padding: 5px 15px;
   text-align: left;
   border-right: 1px solid #DDD;
@@ -162,34 +182,34 @@ body {
   font-size: .9em;
   font-weight: normal;
 }
-#context #list table th.check {
+#context #list #data-table table th.check {
   width: 13px;
 }
-#context #list table th:last-child {
+#context #list #data-table table th:last-child {
   border-right: none;
   width: 24px;
 }
-#context #list table tr td {
+#context #list #data-table table tr td {
   padding: 10px 15px;
   border-right: 1px solid #EEE;
   border-bottom: 1px solid #EEE;
 }
-#context #list table tr td.remove {
+#context #list #data-table table tr td.remove {
   border-right: none;
 }
-#context #list table tr td.remove a {
+#context #list #data-table table tr td.remove a {
   text-decoration: none;
   color: #222;
   font-size: 1.8em;
 }
-#context #list table tr td.remove a:hover {
+#context #list #data-table table tr td.remove a:hover {
   color: #55c5cb;
 }
-#context #list table tr:hover td {
+#context #list #data-table table tr:hover td {
   background: #F9F9F9;
   cursor: pointer;
 }
-#context #list table tr:nth-child(even) {
+#context #list #data-table table tr:nth-child(even) {
   background: #F8F8F8;
 }
 #context div[data-visible="list"] #list {
@@ -332,6 +352,18 @@ body {
   margin: 0;
   padding: 10px 15px;
   border-bottom: 1px solid #DDD;
+  -webkit-transition: padding 0.2s ease-in;
+  -moz-transition: padding 0.2s ease-in;
+  transition: padding 0.2s ease-in;
+}
+#configure div[data-config="list"] ul li span.handle,
+#configure div[data-config="form"] ul li span.handle {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background: red;
+  margin: 4px;
+  cursor: move;
 }
 #configure div[data-config="list"] ul li.drag,
 #configure div[data-config="form"] ul li.drag {
@@ -342,7 +374,7 @@ body {
 }
 #configure div[data-config="list"] ul li.over,
 #configure div[data-config="form"] ul li.over {
-  padding-bottom: 20px;
+  padding-bottom: 40px;
 }
 #configure div[data-config="list"] ul li:last-child,
 #configure div[data-config="form"] ul li:last-child {
@@ -351,6 +383,10 @@ body {
 #configure div[data-config="list"] ul li label,
 #configure div[data-config="form"] ul li label {
   display: inline;
+}
+#configure div[data-config="list"] ul li.placeholder,
+#configure div[data-config="form"] ul li.placeholder {
+  border: 1px solid red;
 }
 #configure form {
   padding: 15px 30px;
@@ -405,7 +441,7 @@ body {
     border-bottom: 1px solid #CCC;
     cursor: text;
   }
-  #context #list h2.icon-arrow:before {
+  #context #list h2 span.icon-arrow:before {
     content: '';
     margin-right: 0;
   }

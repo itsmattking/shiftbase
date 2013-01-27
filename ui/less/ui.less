@@ -24,14 +24,19 @@ body {
     color: white;
     background: #423D41;
     border-bottom: 1px solid rgb(66, 61, 65);
-    &.icon-arrow:before {
-      margin-right: 10px;
-      cursor: pointer;
-    }
-    &:hover {
-      cursor: pointer;
+    span {
       &.icon-arrow:before {
-        color: @highlight;
+        margin-right: 10px;
+        cursor: pointer;
+        &:hover {
+          cursor: pointer;
+        }
+      }
+      &:hover {
+        cursor: pointer;
+        &.icon-arrow:before {
+          color: @highlight;
+        }
       }
     }
   }
@@ -91,51 +96,54 @@ body {
   #list {
     position: absolute;
     width: 100%;
-    table {
-      table-layout: fixed;
-      width: 100%;
-      border-collapse: collapse;
-      th {
-        padding: 5px 15px;
-        text-align: left;
-        border-right: 1px solid #DDD;
-        border-bottom: 1px solid #DDD;
-        background: #EEE;
-        text-transform: uppercase;
-        color: #555;
-        font-size: .9em;
-        font-weight: normal;
-        &.check {
-          width: 13px;
-        }
-        &:last-child {
-          border-right: none;
-          width: 24px;
-        }
-      }
-      tr {
-        td {
-          padding: 10px 15px;
-          border-right: 1px solid #EEE;
-          border-bottom: 1px solid #EEE;
-          &.remove  {
+    #data-table {
+      overflow: auto;
+      table {
+        table-layout: fixed;
+        width: 100%;
+        border-collapse: collapse;
+        th {
+          padding: 5px 15px;
+          text-align: left;
+          border-right: 1px solid #DDD;
+          border-bottom: 1px solid #DDD;
+          background: #EEE;
+          text-transform: uppercase;
+          color: #555;
+          font-size: .9em;
+          font-weight: normal;
+          &.check {
+            width: 13px;
+          }
+          &:last-child {
             border-right: none;
-            a {
-              text-decoration: none;
-              color: #222;
-              font-size: 1.8em;
-              &:hover {
-                color: @highlight;
+            width: 24px;
+          }
+        }
+        tr {
+          td {
+            padding: 10px 15px;
+            border-right: 1px solid #EEE;
+            border-bottom: 1px solid #EEE;
+            &.remove  {
+              border-right: none;
+              a {
+                text-decoration: none;
+                color: #222;
+                font-size: 1.8em;
+                &:hover {
+                  color: @highlight;
+                }
               }
             }
           }
-        }
-        &:hover td {
-          background: #F9F9F9;
-          cursor: pointer;
-        }
-        &:nth-child(even) {
-          background: #F8F8F8;
+          &:hover td {
+            background: #F9F9F9;
+            cursor: pointer;
+          }
+          &:nth-child(even) {
+            background: #F8F8F8;
+          }
         }
       }
     }
@@ -272,17 +280,29 @@ body {
         margin: 0;
         padding: 10px 15px;
         border-bottom : 1px solid #DDD;
+        .transition(padding .2s ease-in);
+        span.handle {
+          display: inline-block;
+          width: 16px;
+          height: 16px;
+          background: red;
+          margin: 4px;
+          cursor: move;
+        }
         &.drag {
           .opacity(50);
         }
         &.over {
-          padding-bottom: 20px;
+          padding-bottom: 40px;
         }
         &:last-child {
           border-bottom: none;
         }
         label {
           display: inline;
+        }
+        &.placeholder {
+          border: 1px solid red;
         }
       }
     }
@@ -336,9 +356,11 @@ body {
         color: #555;
         border-bottom: 1px solid #CCC;
         cursor: text;
-        &.icon-arrow:before {
-          content: '';
-          margin-right: 0;
+        span {
+          &.icon-arrow:before {
+            content: '';
+            margin-right: 0;
+          }
         }
       }
     }

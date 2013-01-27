@@ -5,9 +5,18 @@ define('model', ['api-client', 'views/fields'], function(api, fields) {
     this.structure = structure;
     this.fields = {};
     for (var k in structure) {
-      this.fields[k] = new fields[structure[k]](k, data[k]);
+      this.addField(k, structure[k], data[k]);
     }
   }
+
+  Model.prototype.addField = function(name, type, value) {
+    if (!(name in this.fields)) {
+      this.fields[name] = new fields[type](name, value);
+    }
+    if (!(name in this.structure)) {
+      this.structure[name] = type;
+    }
+  };
 
   Model.prototype.save = function(callback) {
     api.put(this.name, this.fields.id.value(), {
