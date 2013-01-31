@@ -1,0 +1,21 @@
+* API
+** Manifest CRUD
+** Default enable/disable field on all models
+* UI
+** Manifest
+*** List Display
+*** Form Display
+*** Figure out sorting
+*** Ability to create new manifest
+*** Ability to delete manifest
+*** Ability to add/remove fields on manifest
+** List
+*** Show default headline (or nothing)
+*** Delete button
+*** Disable button
+*** Make checkboxes work (select items to delete/disable)
+*** Sorting
+*** Paging
+** Detail
+*** Show default headline (or nothing)
+
