@@ -41,6 +41,8 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
   function loadItem(data, e) {
     var model = e.target.parentNode.dataset.model;
     if (model) {
+      document.querySelector('#detail').style.display = 'block';
+      document.querySelector('#configure').style.display = 'none';
       api.get(model, this.fields.id.value(), {
         success: function(d) {
 //           if (!currentData().length) {
@@ -101,7 +103,6 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
 
   function goToSwitcher(data, e) {
 //     window.history.back();
-    console.log(e.target);
     visibleContext('switcher');
   }
 
@@ -172,6 +173,10 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
     remove: removeItem,
     visibleContext: visibleContext,
     goToSwitcher: goToSwitcher,
+    isActive: function(item) {
+      return currentData().length &&
+        currentData()[0].fields.id.value() === item.fields.id.value();
+    },
     configureModel: function(data, e) {
       document.querySelector('#detail').style.display = 'none';
       document.querySelector('#configure').style.display = 'block';
@@ -285,9 +290,7 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
       }
     },
     resetDrag: function(e) {
-      console.log('reset');
       if (dragSrcEl) {
-        console.log('resetting drag');
         dragSrcEl.parentNode.querySelector('li').map(function(l) {
           l.classList.remove('over');
         });
@@ -307,36 +310,19 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
       return true;
     },
     handleDragEnter: function(data, e) {
-//       var target = e.target;
-//       while (target && !target.getAttribute('draggable')) {
-//         target = target.parentNode;
-//       }
-//       if (target) {
-//         var li = document.createElement('li');
-//         li.classList.add('placeholder');
-//         target.parentNode.insertBefore(li, target);
-//       }
       return true;
     },
     handleDragLeave: function(data, e) {
-      var lis = Array.prototype.slice.call(document.querySelectorAll('[data-config=form] ul li[draggable]'), 0);
+      var lis = Array.prototype.slice.call(document.querySelectorAll('[data-config] ul li[draggable]'), 0);
       lis.map(function(l) {
         l.classList.remove('over');
       });
-//       var ph = Array.prototype.slice.call(document.querySelectorAll('[data-config=form] ul li.placeholder'), 0);
-//       for (var i = 0; i < ph.length; i++) {
-//         ph[i].parentNode.removeChild(ph[i]);
-//       }
     },
     handleDragEnd: function(data, e) {
-      var lis = Array.prototype.slice.call(document.querySelectorAll('[data-config=form] ul li[draggable]'), 0);
+      var lis = Array.prototype.slice.call(document.querySelectorAll('[data-config] ul li[draggable]'), 0);
       lis.map(function(l) {
         l.classList.remove('over');
       });
-//       var ph = Array.prototype.slice.call(document.querySelectorAll('[data-config=form] ul li.placeholder'), 0);
-//       for (var i = 0; i < ph.length; i++) {
-//         ph[i].parentNode.removeChild(ph[i]);
-//       }
       dragSrcEl.classList.remove('drag');
       dragSrcEl = null;
     },
@@ -370,18 +356,16 @@ define('ui', ['api-client', 'manifest!', 'model'], function(api, manifest, Model
       target.classList.remove('over');
       var found = extractDisplayType(target);
       if (found === 'form') {
-        var extracted = formDisplay.splice(formDisplay.indexOf(dragSrcEl.querySelector('input[type=checkbox]').value), 1)[0];
-        formDisplay.splice(formDisplay.indexOf(insertAfter)+1, 0, extracted);
+        formDisplay.splice(formDisplay.indexOf(insertAfter), 0,
+                           formDisplay.splice(formDisplay.indexOf(dragSrcEl.querySelector('input[type=checkbox]').value), 1)[0]);
         currentManifest().arrangeDisplay(found, formDisplay());
       } else {
-        var extracted = listDisplay.splice(listDisplay.indexOf(dragSrcEl.querySelector('input[type=checkbox]').value), 1)[0];
-        listDisplay.splice(listDisplay.indexOf(insertAfter)+1, 0, extracted);
+        listDisplay.splice(listDisplay.indexOf(insertAfter), 0,
+                           listDisplay.splice(listDisplay.indexOf(dragSrcEl.querySelector('input[type=checkbox]').value), 1)[0]);
         currentManifest().arrangeDisplay(found, listDisplay());
       }
       currentManifest().save();
 
-//       console.log(listDisplay.indexOf(e.target.querySelector('input[type=checkbox]').value));
-//       console.log(listDisplay.indexOf(dragSrcEl.querySelector('input[type=checkbox]').value));
       return true;
     }
   }, document.querySelector('#configure'));

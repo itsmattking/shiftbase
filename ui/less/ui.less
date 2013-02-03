@@ -103,7 +103,7 @@ body {
         width: 100%;
         border-collapse: collapse;
         th {
-          padding: 5px 15px;
+          padding: 5px 10px;
           text-align: left;
           border-right: 1px solid #DDD;
           border-bottom: 1px solid #DDD;
@@ -116,13 +116,13 @@ body {
             width: 13px;
           }
           &:last-child {
-            border-right: none;
+            border-right: 1px solid #EEE;
             width: 24px;
           }
         }
         tr {
           td {
-            padding: 10px 15px;
+            padding: 5px 10px;
             border-right: 1px solid #EEE;
             border-bottom: 1px solid #EEE;
             &.remove  {
@@ -136,13 +136,37 @@ body {
                 }
               }
             }
+            &:first-child {
+              text-align: center;
+            }
           }
           &:hover td {
-            background: #F9F9F9;
+            background: #EEE;
             cursor: pointer;
+            border-top: 1px solid #DDD;
+            border-right: 1px solid #DDD;
+            border-bottom: 1px solid #DDD;
+            &:last-child {
+              border-right: 1px solid #EEE;
+            }
           }
           &:nth-child(even) {
             background: #F8F8F8;
+          }
+          &.active {
+            background: @highlight;
+            td {
+              color: white;
+              &.remove {
+                a {
+                  color: white;
+                }
+              }
+            }
+          }
+          &.active:hover td {
+            background: @highlight;
+            color: white;
           }
         }
       }
@@ -276,27 +300,36 @@ body {
       border-top: 1px solid #CCC;
       border-bottom : 1px solid #CCC;
       li {
+        box-sizing: border-box;
         list-style: none;
         margin: 0;
         padding: 10px 15px;
-        border-bottom : 1px solid #DDD;
         .transition(padding .2s ease-in);
+        border: 1px solid transparent;
+        border-bottom : 1px solid #DDD;
         span.handle {
-          display: inline-block;
-          width: 16px;
-          height: 16px;
-          background: red;
-          margin: 4px;
+          display: block;
+          float: right;
+          font-size: 20px;
+          margin: 0;
+          color: #444;
+          padding: 2px;
           cursor: move;
-        }
-        &.drag {
-          .opacity(50);
-        }
-        &.over {
-          padding-bottom: 40px;
+          background: #D9D9D9;
+          border-radius: 2px;
+          line-height: 16px;
+          margin-top: -4px;
+          text-shadow: 0 1px 0 white;
+          box-shadow: inset 0 0 3px #AAA;
         }
         &:last-child {
-          border-bottom: none;
+          border-bottom: 1px solid transparent;
+        }
+        &.drag {
+          .opacity(80);
+        }
+        &.over {
+          border: 1px dashed black;
         }
         label {
           display: inline;
